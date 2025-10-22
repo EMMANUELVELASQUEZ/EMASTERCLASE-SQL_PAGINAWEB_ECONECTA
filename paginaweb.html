@@ -1,0 +1,1560 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoCampus - Plataforma de Sustentabilidad</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .notification {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+        .dark {
+            --tw-bg-opacity: 1;
+            background-color: rgb(17 24 39 / var(--tw-bg-opacity));
+            color: white;
+        }
+        .dark .bg-white { background-color: rgb(31 41 55); }
+        .dark .text-gray-900 { color: rgb(243 244 246); }
+        .dark .text-gray-600 { color: rgb(156 163 175); }
+        .dark .border-gray-200 { border-color: rgb(75 85 99); }
+    </style>
+</head>
+<body class="h-full bg-gradient-to-br from-green-50 to-blue-50 transition-colors duration-300">
+    <!-- Navegación -->
+    <nav class="bg-white shadow-lg border-b-4 border-green-500 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-leaf text-green-600 text-2xl mr-2"></i>
+                        <span class="text-xl font-bold text-gray-800">EcoCampus</span>
+                    </div>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-6">
+                    <button onclick="showSection('dashboard')" class="nav-btn text-gray-600 hover:text-green-600 px-3 py-2 rounded-md font-medium transition-colors">
+                        <i class="fas fa-home mr-1"></i> Inicio
+                    </button>
+                    <button onclick="showSection('actions')" class="nav-btn text-gray-600 hover:text-green-600 px-3 py-2 rounded-md font-medium transition-colors">
+                        <i class="fas fa-plus-circle mr-1"></i> Acciones
+                    </button>
+                    <button onclick="showSection('rewards')" class="nav-btn text-gray-600 hover:text-green-600 px-3 py-2 rounded-md font-medium transition-colors">
+                        <i class="fas fa-gift mr-1"></i> Recompensas
+                    </button>
+                    <button onclick="showSection('events')" class="nav-btn text-gray-600 hover:text-green-600 px-3 py-2 rounded-md font-medium transition-colors">
+                        <i class="fas fa-calendar mr-1"></i> Eventos
+                    </button>
+                    <button onclick="showSection('education')" class="nav-btn text-gray-600 hover:text-green-600 px-3 py-2 rounded-md font-medium transition-colors">
+                        <i class="fas fa-book mr-1"></i> Educación
+                    </button>
+                    <button onclick="showSection('map')" class="nav-btn text-gray-600 hover:text-green-600 px-3 py-2 rounded-md font-medium transition-colors">
+                        <i class="fas fa-map mr-1"></i> Mapa
+                    </button>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button onclick="toggleTheme()" class="p-2 rounded-full hover:bg-gray-100 transition-colors">
+                        <i id="theme-icon" class="fas fa-moon text-gray-600"></i>
+                    </button>
+                    <div class="relative">
+                        <button onclick="toggleNotifications()" class="relative p-2 rounded-full hover:bg-gray-100 transition-colors">
+                            <i class="fas fa-bell text-gray-600"></i>
+                            <span id="notification-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+                        </button>
+                        <div id="notifications-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border z-50">
+                            <div class="p-4 border-b">
+                                <h3 class="font-semibold text-gray-800">Notificaciones</h3>
+                            </div>
+                            <div class="max-h-64 overflow-y-auto">
+                                <div class="p-3 border-b hover:bg-gray-50">
+                                    <p class="text-sm text-gray-800">¡Nuevo taller de compostaje disponible!</p>
+                                    <p class="text-xs text-gray-500 mt-1">Hace 2 horas</p>
+                                </div>
+                                <div class="p-3 border-b hover:bg-gray-50">
+                                    <p class="text-sm text-gray-800">Tu acción del mes te dio 20 puntos</p>
+                                    <p class="text-xs text-gray-500 mt-1">Hace 1 día</p>
+                                </div>
+                                <div class="p-3 hover:bg-gray-50">
+                                    <p class="text-sm text-gray-800">Evento de limpieza del campus mañana</p>
+                                    <p class="text-xs text-gray-500 mt-1">Hace 2 días</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <button onclick="toggleUserMenu()" class="flex items-center space-x-2 p-2 rounded-full hover:bg-gray-100 transition-colors">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%234ade80'/%3E%3Ctext x='16' y='21' text-anchor='middle' fill='white' font-family='Arial' font-size='14' font-weight='bold'%3EJM%3C/text%3E%3C/svg%3E" alt="Usuario" class="w-8 h-8 rounded-full">
+                            <span id="user-name" class="text-gray-700 font-medium">Juan Martínez</span>
+                        </button>
+                        <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border z-50">
+                            <button onclick="showSection('profile')" class="w-full text-left px-4 py-2 hover:bg-gray-50 rounded-t-lg">
+                                <i class="fas fa-user mr-2"></i> Mi Perfil
+                            </button>
+                            <button onclick="logout()" class="w-full text-left px-4 py-2 hover:bg-gray-50 text-red-600 rounded-b-lg">
+                                <i class="fas fa-sign-out-alt mr-2"></i> Cerrar Sesión
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Pantalla de Login -->
+    <div id="login-screen" class="min-h-screen flex items-center justify-center px-4">
+        <div class="max-w-md w-full bg-white rounded-xl shadow-2xl p-8">
+            <div class="text-center mb-8">
+                <i class="fas fa-leaf text-green-600 text-4xl mb-4"></i>
+                <h2 class="text-3xl font-bold text-gray-800">EcoCampus</h2>
+                <p class="text-gray-600 mt-2">Plataforma de Sustentabilidad</p>
+            </div>
+            
+            <form onsubmit="login(event)" class="space-y-6">
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-2">Usuario</label>
+                    <input type="text" id="username" name="username" required 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                           placeholder="Ingresa tu usuario">
+                </div>
+                
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Contraseña</label>
+                    <input type="password" id="password" name="password" required 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                           placeholder="Ingresa tu contraseña">
+                </div>
+                
+                <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-medium">
+                    <i class="fas fa-sign-in-alt mr-2"></i> Iniciar Sesión
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center">
+                <p class="text-sm text-gray-600">Usuario demo: <strong>admin</strong> | Contraseña: <strong>123</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenido Principal -->
+    <div id="main-content" class="hidden">
+        <!-- Dashboard -->
+        <section id="dashboard" class="section-content">
+            <div class="max-w-7xl mx-auto px-4 py-8">
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-800 mb-2">¡Bienvenido de vuelta, <span id="welcome-name">Juan</span>!</h1>
+                    <p class="text-gray-600">Continúa tu impacto positivo en el campus</p>
+                </div>
+
+                <!-- Estadísticas Rápidas -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-600 text-sm">Puntos Totales</p>
+                                <p class="text-2xl font-bold text-green-600" id="total-points">1,250</p>
+                            </div>
+                            <i class="fas fa-star text-green-500 text-2xl"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-600 text-sm">Acciones Realizadas</p>
+                                <p class="text-2xl font-bold text-blue-600" id="total-actions">23</p>
+                            </div>
+                            <i class="fas fa-check-circle text-blue-500 text-2xl"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-600 text-sm">Eventos Asistidos</p>
+                                <p class="text-2xl font-bold text-purple-600" id="events-attended">5</p>
+                            </div>
+                            <i class="fas fa-calendar-check text-purple-500 text-2xl"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-600 text-sm">CO₂ Ahorrado</p>
+                                <p class="text-2xl font-bold text-orange-600">45 kg</p>
+                            </div>
+                            <i class="fas fa-leaf text-orange-500 text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráficas y Contenido -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Progreso Mensual</h3>
+                        <canvas id="progressChart" width="400" height="200"></canvas>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Tipos de Acciones</h3>
+                        <canvas id="actionsChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- Acciones Recientes y Próximos Eventos -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Acciones Recientes</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center p-3 bg-green-50 rounded-lg">
+                                <i class="fas fa-recycle text-green-600 mr-3"></i>
+                                <div>
+                                    <p class="font-medium text-gray-800">Reciclaje de papel</p>
+                                    <p class="text-sm text-gray-600">Hace 2 días - 10 puntos</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center p-3 bg-blue-50 rounded-lg">
+                                <i class="fas fa-lightbulb text-blue-600 mr-3"></i>
+                                <div>
+                                    <p class="font-medium text-gray-800">Ahorro de energía</p>
+                                    <p class="text-sm text-gray-600">Hace 3 días - 15 puntos</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Próximos Eventos</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center p-3 bg-purple-50 rounded-lg">
+                                <i class="fas fa-calendar text-purple-600 mr-3"></i>
+                                <div>
+                                    <p class="font-medium text-gray-800">Taller de Compostaje</p>
+                                    <p class="text-sm text-gray-600">15 de Enero - Aula Verde</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center p-3 bg-orange-50 rounded-lg">
+                                <i class="fas fa-users text-orange-600 mr-3"></i>
+                                <div>
+                                    <p class="font-medium text-gray-800">Limpieza del Campus</p>
+                                    <p class="text-sm text-gray-600">20 de Enero - Plaza Central</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Perfil de Usuario -->
+        <section id="profile" class="section-content hidden">
+            <div class="max-w-4xl mx-auto px-4 py-8">
+                <h1 class="text-3xl font-bold text-gray-800 mb-8">Mi Perfil</h1>
+                
+                <div class="bg-white rounded-xl shadow-lg p-8">
+                    <div class="flex items-center mb-8">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%234ade80'/%3E%3Ctext x='40' y='50' text-anchor='middle' fill='white' font-family='Arial' font-size='28' font-weight='bold'%3EJM%3C/text%3E%3C/svg%3E" alt="Foto de perfil" class="w-20 h-20 rounded-full mr-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800" id="profile-name">Juan Martínez</h2>
+                            <p class="text-gray-600" id="profile-email">juan.martinez@universidad.edu</p>
+                            <p class="text-sm text-green-600 font-medium">Eco-Warrior Nivel 3</p>
+                        </div>
+                    </div>
+                    
+                    <form onsubmit="updateProfile(event)" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="edit-name" class="block text-sm font-medium text-gray-700 mb-2">Nombre Completo</label>
+                            <input type="text" id="edit-name" name="name" value="Juan Martínez" 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        </div>
+                        
+                        <div>
+                            <label for="edit-email" class="block text-sm font-medium text-gray-700 mb-2">Correo Electrónico</label>
+                            <input type="email" id="edit-email" name="email" value="juan.martinez@universidad.edu" 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        </div>
+                        
+                        <div>
+                            <label for="edit-faculty" class="block text-sm font-medium text-gray-700 mb-2">Facultad</label>
+                            <select id="edit-faculty" name="faculty" 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                <option value="ingenieria">Ingeniería</option>
+                                <option value="ciencias">Ciencias</option>
+                                <option value="humanidades">Humanidades</option>
+                                <option value="medicina">Medicina</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="edit-semester" class="block text-sm font-medium text-gray-700 mb-2">Semestre</label>
+                            <select id="edit-semester" name="semester" 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                <option value="1">1er Semestre</option>
+                                <option value="2">2do Semestre</option>
+                                <option value="3">3er Semestre</option>
+                                <option value="4">4to Semestre</option>
+                                <option value="5" selected>5to Semestre</option>
+                                <option value="6">6to Semestre</option>
+                                <option value="7">7mo Semestre</option>
+                                <option value="8">8vo Semestre</option>
+                            </select>
+                        </div>
+                        
+                        <div class="md:col-span-2">
+                            <label for="edit-bio" class="block text-sm font-medium text-gray-700 mb-2">Biografía</label>
+                            <textarea id="edit-bio" name="bio" rows="4" 
+                                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                      placeholder="Cuéntanos sobre ti y tu compromiso con la sustentabilidad...">Estudiante de ingeniería comprometido con el medio ambiente y la sustentabilidad en el campus.</textarea>
+                        </div>
+                        
+                        <div class="md:col-span-2">
+                            <button type="submit" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium">
+                                <i class="fas fa-save mr-2"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Módulo de Acciones -->
+        <section id="actions" class="section-content hidden">
+            <div class="max-w-6xl mx-auto px-4 py-8">
+                <div class="flex justify-between items-center mb-8">
+                    <h1 class="text-3xl font-bold text-gray-800">Acciones Sustentables</h1>
+                    <button onclick="showActionForm()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium">
+                        <i class="fas fa-plus mr-2"></i> Registrar Acción
+                    </button>
+                </div>
+
+                <!-- Formulario de Nueva Acción -->
+                <div id="action-form" class="hidden bg-white rounded-xl shadow-lg p-6 mb-8">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Registrar Nueva Acción</h3>
+                    <form onsubmit="addAction(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="action-type" class="block text-sm font-medium text-gray-700 mb-2">Tipo de Acción</label>
+                            <select id="action-type" name="type" required 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                <option value="">Selecciona un tipo</option>
+                                <option value="reciclaje">Reciclaje</option>
+                                <option value="ahorro-energia">Ahorro de Energía</option>
+                                <option value="ahorro-agua">Ahorro de Agua</option>
+                                <option value="transporte">Transporte Sustentable</option>
+                                <option value="compostaje">Compostaje</option>
+                                <option value="educacion">Educación Ambiental</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="action-date" class="block text-sm font-medium text-gray-700 mb-2">Fecha</label>
+                            <input type="date" id="action-date" name="date" required 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        </div>
+                        
+                        <div class="md:col-span-2">
+                            <label for="action-description" class="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+                            <textarea id="action-description" name="description" rows="3" required 
+                                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                      placeholder="Describe tu acción sustentable..."></textarea>
+                        </div>
+                        
+                        <div class="md:col-span-2 flex space-x-4">
+                            <button type="submit" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium">
+                                <i class="fas fa-save mr-2"></i> Guardar Acción
+                            </button>
+                            <button type="button" onclick="hideActionForm()" class="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors font-medium">
+                                <i class="fas fa-times mr-2"></i> Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Lista de Acciones -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Mis Acciones</h3>
+                    <div id="actions-list" class="space-y-4">
+                        <!-- Las acciones se cargarán aquí dinámicamente -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Módulo de Recompensas -->
+        <section id="rewards" class="section-content hidden">
+            <div class="max-w-6xl mx-auto px-4 py-8">
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-800 mb-2">Recompensas</h1>
+                    <p class="text-gray-600">Canjea tus puntos por increíbles recompensas</p>
+                </div>
+
+                <!-- Puntos Disponibles -->
+                <div class="bg-gradient-to-r from-green-500 to-blue-500 rounded-xl shadow-lg p-6 mb-8 text-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2">Puntos Disponibles</h3>
+                            <p class="text-3xl font-bold" id="available-points">1,250</p>
+                        </div>
+                        <i class="fas fa-coins text-4xl opacity-80"></i>
+                    </div>
+                </div>
+
+                <!-- Catálogo de Recompensas -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-xl shadow-lg p-6 border-2 border-transparent hover:border-green-500 transition-all">
+                        <div class="text-center mb-4">
+                            <i class="fas fa-coffee text-4xl text-brown-500 mb-3"></i>
+                            <h4 class="text-lg font-semibold text-gray-800">Café Gratis</h4>
+                            <p class="text-gray-600 text-sm">Cafetería del campus</p>
+                        </div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-2xl font-bold text-green-600">50 pts</span>
+                            <span class="text-sm text-gray-500">Disponible: 15</span>
+                        </div>
+                        <button onclick="redeemReward('cafe', 50)" class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors">
+                            Canjear
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-lg p-6 border-2 border-transparent hover:border-green-500 transition-all">
+                        <div class="text-center mb-4">
+                            <i class="fas fa-book text-4xl text-blue-500 mb-3"></i>
+                            <h4 class="text-lg font-semibold text-gray-800">Descuento Librería</h4>
+                            <p class="text-gray-600 text-sm">10% de descuento</p>
+                        </div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-2xl font-bold text-green-600">100 pts</span>
+                            <span class="text-sm text-gray-500">Disponible: 8</span>
+                        </div>
+                        <button onclick="redeemReward('libreria', 100)" class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors">
+                            Canjear
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-lg p-6 border-2 border-transparent hover:border-green-500 transition-all">
+                        <div class="text-center mb-4">
+                            <i class="fas fa-seedling text-4xl text-green-500 mb-3"></i>
+                            <h4 class="text-lg font-semibold text-gray-800">Planta para tu Cuarto</h4>
+                            <p class="text-gray-600 text-sm">Planta de interior</p>
+                        </div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-2xl font-bold text-green-600">200 pts</span>
+                            <span class="text-sm text-gray-500">Disponible: 5</span>
+                        </div>
+                        <button onclick="redeemReward('planta', 200)" class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors">
+                            Canjear
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-lg p-6 border-2 border-transparent hover:border-green-500 transition-all">
+                        <div class="text-center mb-4">
+                            <i class="fas fa-tshirt text-4xl text-purple-500 mb-3"></i>
+                            <h4 class="text-lg font-semibold text-gray-800">Camiseta EcoCampus</h4>
+                            <p class="text-gray-600 text-sm">Edición limitada</p>
+                        </div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-2xl font-bold text-green-600">300 pts</span>
+                            <span class="text-sm text-gray-500">Disponible: 3</span>
+                        </div>
+                        <button onclick="redeemReward('camiseta', 300)" class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors">
+                            Canjear
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-lg p-6 border-2 border-transparent hover:border-green-500 transition-all">
+                        <div class="text-center mb-4">
+                            <i class="fas fa-bicycle text-4xl text-orange-500 mb-3"></i>
+                            <h4 class="text-lg font-semibold text-gray-800">Bicicleta Campus</h4>
+                            <p class="text-gray-600 text-sm">Uso por 1 semana</p>
+                        </div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-2xl font-bold text-green-600">150 pts</span>
+                            <span class="text-sm text-gray-500">Disponible: 10</span>
+                        </div>
+                        <button onclick="redeemReward('bicicleta', 150)" class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors">
+                            Canjear
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-lg p-6 border-2 border-transparent hover:border-green-500 transition-all">
+                        <div class="text-center mb-4">
+                            <i class="fas fa-trophy text-4xl text-yellow-500 mb-3"></i>
+                            <h4 class="text-lg font-semibold text-gray-800">Certificado Eco-Leader</h4>
+                            <p class="text-gray-600 text-sm">Reconocimiento oficial</p>
+                        </div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-2xl font-bold text-green-600">500 pts</span>
+                            <span class="text-sm text-gray-500">Disponible: 2</span>
+                        </div>
+                        <button onclick="redeemReward('certificado', 500)" class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors">
+                            Canjear
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Historial de Canjes -->
+                <div class="mt-8 bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Historial de Canjes</h3>
+                    <div id="redemption-history" class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-coffee text-brown-500 mr-3"></i>
+                                <div>
+                                    <p class="font-medium text-gray-800">Café Gratis</p>
+                                    <p class="text-sm text-gray-600">Canjeado el 10 de Enero</p>
+                                </div>
+                            </div>
+                            <span class="text-red-600 font-medium">-50 pts</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Módulo de Eventos -->
+        <section id="events" class="section-content hidden">
+            <div class="max-w-6xl mx-auto px-4 py-8">
+                <div class="flex justify-between items-center mb-8">
+                    <h1 class="text-3xl font-bold text-gray-800">Eventos y Talleres</h1>
+                    <div class="flex space-x-4">
+                        <button onclick="filterEvents('upcoming')" id="upcoming-btn" class="filter-btn bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                            Próximos
+                        </button>
+                        <button onclick="filterEvents('past')" id="past-btn" class="filter-btn bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                            Pasados
+                        </button>
+                        <button onclick="filterEvents('all')" id="all-btn" class="filter-btn bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                            Todos
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lista de Eventos -->
+                <div id="events-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Los eventos se cargarán aquí dinámicamente -->
+                </div>
+
+                <!-- Modal de Detalle de Evento -->
+                <div id="event-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-screen overflow-y-auto">
+                        <div class="p-6">
+                            <div class="flex justify-between items-start mb-4">
+                                <h3 id="modal-event-title" class="text-2xl font-bold text-gray-800"></h3>
+                                <button onclick="closeEventModal()" class="text-gray-500 hover:text-gray-700">
+                                    <i class="fas fa-times text-xl"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div class="flex items-center text-gray-600">
+                                    <i class="fas fa-calendar mr-3"></i>
+                                    <span id="modal-event-date"></span>
+                                </div>
+                                <div class="flex items-center text-gray-600">
+                                    <i class="fas fa-clock mr-3"></i>
+                                    <span id="modal-event-time"></span>
+                                </div>
+                                <div class="flex items-center text-gray-600">
+                                    <i class="fas fa-map-marker-alt mr-3"></i>
+                                    <span id="modal-event-location"></span>
+                                </div>
+                                <div class="flex items-center text-gray-600">
+                                    <i class="fas fa-users mr-3"></i>
+                                    <span id="modal-event-capacity"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6">
+                                <h4 class="font-semibold text-gray-800 mb-2">Descripción</h4>
+                                <p id="modal-event-description" class="text-gray-600"></p>
+                            </div>
+                            
+                            <div class="mt-6 flex space-x-4">
+                                <button id="register-btn" onclick="registerForEvent()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium">
+                                    <i class="fas fa-user-plus mr-2"></i> Inscribirse
+                                </button>
+                                <button onclick="closeEventModal()" class="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors font-medium">
+                                    Cerrar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Módulo de Educación -->
+        <section id="education" class="section-content hidden">
+            <div class="max-w-6xl mx-auto px-4 py-8">
+                <h1 class="text-3xl font-bold text-gray-800 mb-8">Educación Ambiental</h1>
+
+                <!-- Videos Tutoriales -->
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Videos Tutoriales</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="bg-gray-100 rounded-lg p-4">
+                            <div class="bg-green-500 h-32 rounded-lg flex items-center justify-center mb-3">
+                                <i class="fas fa-play text-white text-3xl"></i>
+                            </div>
+                            <h4 class="font-semibold text-gray-800 mb-2">Cómo hacer compostaje</h4>
+                            <p class="text-sm text-gray-600 mb-3">Aprende a crear tu propio compost en casa</p>
+                            <button onclick="playVideo('compostaje')" class="text-green-600 hover:text-green-700 font-medium">
+                                <i class="fas fa-play mr-1"></i> Ver video
+                            </button>
+                        </div>
+
+                        <div class="bg-gray-100 rounded-lg p-4">
+                            <div class="bg-blue-500 h-32 rounded-lg flex items-center justify-center mb-3">
+                                <i class="fas fa-play text-white text-3xl"></i>
+                            </div>
+                            <h4 class="font-semibold text-gray-800 mb-2">Reciclaje efectivo</h4>
+                            <p class="text-sm text-gray-600 mb-3">Guía completa para reciclar correctamente</p>
+                            <button onclick="playVideo('reciclaje')" class="text-green-600 hover:text-green-700 font-medium">
+                                <i class="fas fa-play mr-1"></i> Ver video
+                            </button>
+                        </div>
+
+                        <div class="bg-gray-100 rounded-lg p-4">
+                            <div class="bg-purple-500 h-32 rounded-lg flex items-center justify-center mb-3">
+                                <i class="fas fa-play text-white text-3xl"></i>
+                            </div>
+                            <h4 class="font-semibold text-gray-800 mb-2">Ahorro de energía</h4>
+                            <p class="text-sm text-gray-600 mb-3">Tips para reducir tu consumo energético</p>
+                            <button onclick="playVideo('energia')" class="text-green-600 hover:text-green-700 font-medium">
+                                <i class="fas fa-play mr-1"></i> Ver video
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recursos Descargables -->
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Recursos Descargables</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-file-pdf text-red-500 text-2xl mr-4"></i>
+                            <div class="flex-1">
+                                <h4 class="font-medium text-gray-800">Guía de Reciclaje Campus</h4>
+                                <p class="text-sm text-gray-600">Manual completo de reciclaje</p>
+                            </div>
+                            <button onclick="downloadResource('reciclaje-guide')" class="text-green-600 hover:text-green-700">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+
+                        <div class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-file-pdf text-red-500 text-2xl mr-4"></i>
+                            <div class="flex-1">
+                                <h4 class="font-medium text-gray-800">Tips de Ahorro de Agua</h4>
+                                <p class="text-sm text-gray-600">Consejos prácticos para el hogar</p>
+                            </div>
+                            <button onclick="downloadResource('agua-tips')" class="text-green-600 hover:text-green-700">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+
+                        <div class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-file-pdf text-red-500 text-2xl mr-4"></i>
+                            <div class="flex-1">
+                                <h4 class="font-medium text-gray-800">Manual de Compostaje</h4>
+                                <p class="text-sm text-gray-600">Paso a paso para compostar</p>
+                            </div>
+                            <button onclick="downloadResource('compostaje-manual')" class="text-green-600 hover:text-green-700">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+
+                        <div class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-file-pdf text-red-500 text-2xl mr-4"></i>
+                            <div class="flex-1">
+                                <h4 class="font-medium text-gray-800">Plantas para Interiores</h4>
+                                <p class="text-sm text-gray-600">Guía de plantas purificadoras</p>
+                            </div>
+                            <button onclick="downloadResource('plantas-guide')" class="text-green-600 hover:text-green-700">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonios -->
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Experiencias de Estudiantes</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-green-50 p-4 rounded-lg">
+                            <p class="text-gray-700 mb-3 italic">"Participar en el proyecto de huerto urbano cambió mi perspectiva sobre la alimentación sustentable. Ahora cultivo mis propias hierbas en mi cuarto."</p>
+                            <div class="flex items-center">
+                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%23f59e0b'/%3E%3Ctext x='20' y='25' text-anchor='middle' fill='white' font-family='Arial' font-size='14' font-weight='bold'%3EAR%3C/text%3E%3C/svg%3E" alt="Ana" class="w-10 h-10 rounded-full mr-3">
+                                <div>
+                                    <p class="font-medium text-gray-800">Ana Rodríguez</p>
+                                    <p class="text-sm text-gray-600">Biología, 6to semestre</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <p class="text-gray-700 mb-3 italic">"El taller de reciclaje creativo me enseñó a darle nueva vida a objetos que iba a tirar. Ahora tengo decoraciones únicas hechas por mí."</p>
+                            <div class="flex items-center">
+                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%236366f1'/%3E%3Ctext x='20' y='25' text-anchor='middle' fill='white' font-family='Arial' font-size='14' font-weight='bold'%3ECS%3C/text%3E%3C/svg%3E" alt="Carlos" class="w-10 h-10 rounded-full mr-3">
+                                <div>
+                                    <p class="font-medium text-gray-800">Carlos Silva</p>
+                                    <p class="text-sm text-gray-600">Diseño, 4to semestre</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alianzas -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Nuestras Alianzas</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <div class="text-center">
+                            <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <i class="fas fa-tree text-green-600 text-2xl"></i>
+                            </div>
+                            <p class="text-sm font-medium text-gray-800">Fundación Verde</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <i class="fas fa-water text-blue-600 text-2xl"></i>
+                            </div>
+                            <p class="text-sm font-medium text-gray-800">AquaLimpia ONG</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="bg-yellow-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <i class="fas fa-sun text-yellow-600 text-2xl"></i>
+                            </div>
+                            <p class="text-sm font-medium text-gray-800">Energía Solar SA</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <i class="fas fa-recycle text-purple-600 text-2xl"></i>
+                            </div>
+                            <p class="text-sm font-medium text-gray-800">EcoRecicla</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Módulo de Mapa -->
+        <section id="map" class="section-content hidden">
+            <div class="max-w-6xl mx-auto px-4 py-8">
+                <h1 class="text-3xl font-bold text-gray-800 mb-8">Mapa del Campus</h1>
+
+                <!-- Mapa Interactivo -->
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                    <div class="relative bg-green-100 h-96 rounded-lg overflow-hidden">
+                        <!-- Simulación de mapa del campus -->
+                        <svg viewBox="0 0 800 400" class="w-full h-full">
+                            <!-- Edificios -->
+                            <rect x="50" y="50" width="100" height="80" fill="#e5e7eb" stroke="#374151" stroke-width="2"/>
+                            <text x="100" y="95" text-anchor="middle" class="text-xs font-medium">Biblioteca</text>
+                            
+                            <rect x="200" y="50" width="120" height="80" fill="#e5e7eb" stroke="#374151" stroke-width="2"/>
+                            <text x="260" y="95" text-anchor="middle" class="text-xs font-medium">Facultad Ciencias</text>
+                            
+                            <rect x="350" y="50" width="100" height="80" fill="#e5e7eb" stroke="#374151" stroke-width="2"/>
+                            <text x="400" y="95" text-anchor="middle" class="text-xs font-medium">Cafetería</text>
+                            
+                            <rect x="50" y="200" width="120" height="80" fill="#e5e7eb" stroke="#374151" stroke-width="2"/>
+                            <text x="110" y="245" text-anchor="middle" class="text-xs font-medium">Facultad Ingeniería</text>
+                            
+                            <rect x="200" y="200" width="100" height="80" fill="#e5e7eb" stroke="#374151" stroke-width="2"/>
+                            <text x="250" y="245" text-anchor="middle" class="text-xs font-medium">Auditorio</text>
+                            
+                            <!-- Contenedores de reciclaje -->
+                            <circle cx="180" cy="160" r="8" fill="#22c55e" onclick="showMapInfo('reciclaje', 'Contenedores de Reciclaje', 'Papel, plástico y vidrio')" class="cursor-pointer"/>
+                            <circle cx="320" cy="160" r="8" fill="#22c55e" onclick="showMapInfo('reciclaje', 'Contenedores de Reciclaje', 'Papel, plástico y vidrio')" class="cursor-pointer"/>
+                            <circle cx="480" cy="90" r="8" fill="#22c55e" onclick="showMapInfo('reciclaje', 'Contenedores de Reciclaje', 'Papel, plástico y vidrio')" class="cursor-pointer"/>
+                            
+                            <!-- Zonas verdes -->
+                            <ellipse cx="600" cy="100" rx="80" ry="40" fill="#16a34a" onclick="showMapInfo('zona-verde', 'Zona Verde Central', 'Área de descanso y biodiversidad')" class="cursor-pointer"/>
+                            <ellipse cx="550" cy="250" rx="60" ry="30" fill="#16a34a" onclick="showMapInfo('zona-verde', 'Jardín Botánico', 'Plantas nativas y medicinales')" class="cursor-pointer"/>
+                            
+                            <!-- Huertos -->
+                            <rect x="400" y="200" width="80" height="60" fill="#65a30d" onclick="showMapInfo('huerto', 'Huerto Estudiantil', 'Cultivos orgánicos y compostaje')" class="cursor-pointer"/>
+                            
+                            <!-- Centros de acopio -->
+                            <rect x="500" y="50" width="20" height="20" fill="#dc2626" onclick="showMapInfo('acopio', 'Centro de Acopio', 'Electrónicos y baterías')" class="cursor-pointer"/>
+                            <rect x="350" y="300" width="20" height="20" fill="#dc2626" onclick="showMapInfo('acopio', 'Centro de Acopio', 'Aceites y químicos')" class="cursor-pointer"/>
+                            
+                            <!-- Talleres ecológicos -->
+                            <polygon points="150,300 170,280 190,300 170,320" fill="#7c3aed" onclick="showMapInfo('taller', 'Taller Ecológico', 'Espacio para actividades ambientales')" class="cursor-pointer"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Leyenda -->
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+                    <div class="flex items-center bg-white p-3 rounded-lg shadow">
+                        <div class="w-4 h-4 bg-green-500 rounded-full mr-3"></div>
+                        <span class="text-sm font-medium text-gray-700">Reciclaje</span>
+                    </div>
+                    <div class="flex items-center bg-white p-3 rounded-lg shadow">
+                        <div class="w-4 h-4 bg-green-600 rounded-full mr-3"></div>
+                        <span class="text-sm font-medium text-gray-700">Zonas Verdes</span>
+                    </div>
+                    <div class="flex items-center bg-white p-3 rounded-lg shadow">
+                        <div class="w-4 h-4 bg-lime-600 rounded mr-3"></div>
+                        <span class="text-sm font-medium text-gray-700">Huertos</span>
+                    </div>
+                    <div class="flex items-center bg-white p-3 rounded-lg shadow">
+                        <div class="w-4 h-4 bg-red-600 rounded mr-3"></div>
+                        <span class="text-sm font-medium text-gray-700">Centros Acopio</span>
+                    </div>
+                    <div class="flex items-center bg-white p-3 rounded-lg shadow">
+                        <div class="w-4 h-4 bg-purple-600 transform rotate-45 mr-3"></div>
+                        <span class="text-sm font-medium text-gray-700">Talleres</span>
+                    </div>
+                </div>
+
+                <!-- Información del punto seleccionado -->
+                <div id="map-info" class="hidden bg-white rounded-xl shadow-lg p-6">
+                    <h3 id="map-info-title" class="text-lg font-semibold text-gray-800 mb-2"></h3>
+                    <p id="map-info-description" class="text-gray-600 mb-4"></p>
+                    <div id="map-info-details" class="space-y-2">
+                        <!-- Detalles específicos se cargarán aquí -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Notificaciones Toast -->
+    <div id="toast-container" class="fixed top-20 right-4 z-50 space-y-2"></div>
+
+    <script>
+        // Estado de la aplicación
+        let currentUser = null;
+        let userActions = [];
+        let userPoints = 1250;
+        let currentEventFilter = 'upcoming';
+        let selectedEventId = null;
+        let isDarkMode = false;
+
+        // Datos de ejemplo
+        const sampleEvents = [
+            {
+                id: 1,
+                title: "Taller de Compostaje",
+                date: "2024-01-15",
+                time: "14:00",
+                location: "Aula Verde",
+                capacity: "25 personas",
+                description: "Aprende a crear tu propio compost casero y contribuye a reducir los residuos orgánicos del campus.",
+                status: "upcoming",
+                registered: false
+            },
+            {
+                id: 2,
+                title: "Limpieza del Campus",
+                date: "2024-01-20",
+                time: "09:00",
+                location: "Plaza Central",
+                capacity: "50 personas",
+                description: "Jornada de limpieza y embellecimiento de las áreas comunes del campus universitario.",
+                status: "upcoming",
+                registered: true
+            },
+            {
+                id: 3,
+                title: "Conferencia: Energías Renovables",
+                date: "2023-12-10",
+                time: "16:00",
+                location: "Auditorio Principal",
+                capacity: "100 personas",
+                description: "Charla magistral sobre el futuro de las energías renovables y su implementación en universidades.",
+                status: "past",
+                registered: true
+            }
+        ];
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            // Establecer fecha actual en el formulario de acciones
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('action-date').value = today;
+            
+            // Cargar datos iniciales
+            loadUserActions();
+            loadEvents();
+            initializeCharts();
+            
+            // Cerrar dropdowns al hacer clic fuera
+            document.addEventListener('click', function(event) {
+                if (!event.target.closest('#user-dropdown') && !event.target.closest('button[onclick="toggleUserMenu()"]')) {
+                    document.getElementById('user-dropdown').classList.add('hidden');
+                }
+                if (!event.target.closest('#notifications-dropdown') && !event.target.closest('button[onclick="toggleNotifications()"]')) {
+                    document.getElementById('notifications-dropdown').classList.add('hidden');
+                }
+            });
+        });
+
+        // Funciones de autenticación
+        function login(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Validación simple (en producción sería más robusta)
+            if (username === 'admin' && password === '123') {
+                currentUser = {
+                    name: 'Juan Martínez',
+                    email: 'juan.martinez@universidad.edu',
+                    faculty: 'ingenieria',
+                    semester: '5'
+                };
+                
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('main-content').classList.remove('hidden');
+                showSection('dashboard');
+                showToast('¡Bienvenido de vuelta!', 'success');
+            } else {
+                showToast('Usuario o contraseña incorrectos', 'error');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('main-content').classList.add('hidden');
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('user-dropdown').classList.add('hidden');
+            showToast('Sesión cerrada correctamente', 'info');
+        }
+
+        // Navegación
+        function showSection(sectionId) {
+            // Ocultar todas las secciones
+            document.querySelectorAll('.section-content').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Mostrar la sección seleccionada
+            document.getElementById(sectionId).classList.remove('hidden');
+            document.getElementById(sectionId).classList.add('fade-in');
+            
+            // Actualizar navegación activa
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-green-600', 'bg-green-50');
+                btn.classList.add('text-gray-600');
+            });
+            
+            // Cerrar menús desplegables
+            document.getElementById('user-dropdown').classList.add('hidden');
+        }
+
+        // Funciones de perfil
+        function updateProfile(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            
+            // Actualizar datos del usuario
+            currentUser.name = formData.get('name');
+            currentUser.email = formData.get('email');
+            currentUser.faculty = formData.get('faculty');
+            currentUser.semester = formData.get('semester');
+            
+            // Actualizar UI
+            document.getElementById('user-name').textContent = currentUser.name;
+            document.getElementById('welcome-name').textContent = currentUser.name.split(' ')[0];
+            
+            showToast('Perfil actualizado correctamente', 'success');
+        }
+
+        // Funciones de acciones
+        function showActionForm() {
+            document.getElementById('action-form').classList.remove('hidden');
+            document.getElementById('action-form').classList.add('fade-in');
+        }
+
+        function hideActionForm() {
+            document.getElementById('action-form').classList.add('hidden');
+        }
+
+        function addAction(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            
+            const action = {
+                id: Date.now(),
+                type: formData.get('type'),
+                date: formData.get('date'),
+                description: formData.get('description'),
+                points: getPointsForAction(formData.get('type'))
+            };
+            
+            userActions.unshift(action);
+            userPoints += action.points;
+            
+            // Actualizar UI
+            document.getElementById('total-points').textContent = userPoints.toLocaleString();
+            document.getElementById('available-points').textContent = userPoints.toLocaleString();
+            document.getElementById('total-actions').textContent = userActions.length;
+            
+            loadUserActions();
+            hideActionForm();
+            event.target.reset();
+            document.getElementById('action-date').value = new Date().toISOString().split('T')[0];
+            
+            showToast(`¡Acción registrada! +${action.points} puntos`, 'success');
+        }
+
+        function getPointsForAction(type) {
+            const points = {
+                'reciclaje': 10,
+                'ahorro-energia': 15,
+                'ahorro-agua': 12,
+                'transporte': 20,
+                'compostaje': 18,
+                'educacion': 25,
+                'otro': 8
+            };
+            return points[type] || 10;
+        }
+
+        function loadUserActions() {
+            const container = document.getElementById('actions-list');
+            
+            if (userActions.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-leaf text-4xl mb-4"></i>
+                        <p>Aún no has registrado acciones sustentables</p>
+                        <p class="text-sm">¡Comienza registrando tu primera acción!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = userActions.map(action => `
+                <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                            <i class="fas ${getActionIcon(action.type)} text-green-600"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-gray-800">${getActionTypeName(action.type)}</h4>
+                            <p class="text-sm text-gray-600">${action.description}</p>
+                            <p class="text-xs text-gray-500">${formatDate(action.date)}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm font-medium">+${action.points} pts</span>
+                        <button onclick="editAction(${action.id})" class="text-blue-600 hover:text-blue-700 p-1">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteAction(${action.id})" class="text-red-600 hover:text-red-700 p-1">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getActionIcon(type) {
+            const icons = {
+                'reciclaje': 'fa-recycle',
+                'ahorro-energia': 'fa-lightbulb',
+                'ahorro-agua': 'fa-tint',
+                'transporte': 'fa-bicycle',
+                'compostaje': 'fa-seedling',
+                'educacion': 'fa-graduation-cap',
+                'otro': 'fa-leaf'
+            };
+            return icons[type] || 'fa-leaf';
+        }
+
+        function getActionTypeName(type) {
+            const names = {
+                'reciclaje': 'Reciclaje',
+                'ahorro-energia': 'Ahorro de Energía',
+                'ahorro-agua': 'Ahorro de Agua',
+                'transporte': 'Transporte Sustentable',
+                'compostaje': 'Compostaje',
+                'educacion': 'Educación Ambiental',
+                'otro': 'Otra Acción'
+            };
+            return names[type] || 'Acción Sustentable';
+        }
+
+        function deleteAction(actionId) {
+            // Crear confirmación personalizada
+            const confirmDiv = document.createElement('div');
+            confirmDiv.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            confirmDiv.innerHTML = `
+                <div class="bg-white rounded-lg p-6 max-w-sm mx-4">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">¿Eliminar acción?</h3>
+                    <p class="text-gray-600 mb-6">Esta acción no se puede deshacer.</p>
+                    <div class="flex space-x-4">
+                        <button onclick="confirmDeleteAction(${actionId})" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors">
+                            Eliminar
+                        </button>
+                        <button onclick="this.closest('.fixed').remove()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors">
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(confirmDiv);
+        }
+
+        function confirmDeleteAction(actionId) {
+            const actionIndex = userActions.findIndex(action => action.id === actionId);
+            if (actionIndex !== -1) {
+                const action = userActions[actionIndex];
+                userPoints -= action.points;
+                userActions.splice(actionIndex, 1);
+                
+                // Actualizar UI
+                document.getElementById('total-points').textContent = userPoints.toLocaleString();
+                document.getElementById('available-points').textContent = userPoints.toLocaleString();
+                document.getElementById('total-actions').textContent = userActions.length;
+                
+                loadUserActions();
+                showToast('Acción eliminada', 'info');
+            }
+            
+            // Cerrar modal de confirmación
+            document.querySelector('.fixed.inset-0').remove();
+        }
+
+        function editAction(actionId) {
+            showToast('Función de edición en desarrollo', 'info');
+        }
+
+        // Funciones de recompensas
+        function redeemReward(rewardType, cost) {
+            if (userPoints >= cost) {
+                userPoints -= cost;
+                document.getElementById('total-points').textContent = userPoints.toLocaleString();
+                document.getElementById('available-points').textContent = userPoints.toLocaleString();
+                
+                // Agregar al historial
+                const historyContainer = document.getElementById('redemption-history');
+                const newRedemption = document.createElement('div');
+                newRedemption.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg';
+                newRedemption.innerHTML = `
+                    <div class="flex items-center">
+                        <i class="fas ${getRewardIcon(rewardType)} text-gray-600 mr-3"></i>
+                        <div>
+                            <p class="font-medium text-gray-800">${getRewardName(rewardType)}</p>
+                            <p class="text-sm text-gray-600">Canjeado el ${new Date().toLocaleDateString()}</p>
+                        </div>
+                    </div>
+                    <span class="text-red-600 font-medium">-${cost} pts</span>
+                `;
+                historyContainer.insertBefore(newRedemption, historyContainer.firstChild);
+                
+                showToast(`¡${getRewardName(rewardType)} canjeado exitosamente!`, 'success');
+            } else {
+                showToast('No tienes suficientes puntos', 'error');
+            }
+        }
+
+        function getRewardIcon(type) {
+            const icons = {
+                'cafe': 'fa-coffee',
+                'libreria': 'fa-book',
+                'planta': 'fa-seedling',
+                'camiseta': 'fa-tshirt',
+                'bicicleta': 'fa-bicycle',
+                'certificado': 'fa-trophy'
+            };
+            return icons[type] || 'fa-gift';
+        }
+
+        function getRewardName(type) {
+            const names = {
+                'cafe': 'Café Gratis',
+                'libreria': 'Descuento Librería',
+                'planta': 'Planta para tu Cuarto',
+                'camiseta': 'Camiseta EcoCampus',
+                'bicicleta': 'Bicicleta Campus',
+                'certificado': 'Certificado Eco-Leader'
+            };
+            return names[type] || 'Recompensa';
+        }
+
+        // Funciones de eventos
+        function loadEvents() {
+            const container = document.getElementById('events-list');
+            const filteredEvents = sampleEvents.filter(event => {
+                if (currentEventFilter === 'all') return true;
+                return event.status === currentEventFilter;
+            });
+            
+            container.innerHTML = filteredEvents.map(event => `
+                <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">${event.title}</h3>
+                        <span class="px-2 py-1 rounded-full text-xs font-medium ${event.status === 'upcoming' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
+                            ${event.status === 'upcoming' ? 'Próximo' : 'Pasado'}
+                        </span>
+                    </div>
+                    
+                    <div class="space-y-2 mb-4">
+                        <div class="flex items-center text-gray-600">
+                            <i class="fas fa-calendar mr-2"></i>
+                            <span>${formatDate(event.date)}</span>
+                        </div>
+                        <div class="flex items-center text-gray-600">
+                            <i class="fas fa-clock mr-2"></i>
+                            <span>${event.time}</span>
+                        </div>
+                        <div class="flex items-center text-gray-600">
+                            <i class="fas fa-map-marker-alt mr-2"></i>
+                            <span>${event.location}</span>
+                        </div>
+                    </div>
+                    
+                    <p class="text-gray-600 text-sm mb-4">${event.description.substring(0, 100)}...</p>
+                    
+                    <div class="flex space-x-2">
+                        <button onclick="showEventDetails(${event.id})" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                            Ver Detalles
+                        </button>
+                        ${event.status === 'upcoming' ? `
+                            <button onclick="quickRegister(${event.id})" class="px-4 py-2 ${event.registered ? 'bg-green-100 text-green-800' : 'bg-green-600 text-white'} rounded-lg hover:bg-green-700 transition-colors text-sm">
+                                ${event.registered ? 'Inscrito' : 'Inscribirse'}
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterEvents(filter) {
+            currentEventFilter = filter;
+            
+            // Actualizar botones
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-green-600');
+                btn.classList.add('bg-gray-500');
+            });
+            
+            document.getElementById(`${filter}-btn`).classList.remove('bg-gray-500');
+            document.getElementById(`${filter}-btn`).classList.add('bg-green-600');
+            
+            loadEvents();
+        }
+
+        function showEventDetails(eventId) {
+            const event = sampleEvents.find(e => e.id === eventId);
+            if (!event) return;
+            
+            selectedEventId = eventId;
+            
+            document.getElementById('modal-event-title').textContent = event.title;
+            document.getElementById('modal-event-date').textContent = formatDate(event.date);
+            document.getElementById('modal-event-time').textContent = event.time;
+            document.getElementById('modal-event-location').textContent = event.location;
+            document.getElementById('modal-event-capacity').textContent = event.capacity;
+            document.getElementById('modal-event-description').textContent = event.description;
+            
+            const registerBtn = document.getElementById('register-btn');
+            if (event.status === 'upcoming') {
+                registerBtn.style.display = 'block';
+                registerBtn.textContent = event.registered ? 'Ya inscrito' : 'Inscribirse';
+                registerBtn.className = event.registered ? 
+                    'bg-green-100 text-green-800 px-6 py-3 rounded-lg font-medium cursor-not-allowed' :
+                    'bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium';
+                registerBtn.disabled = event.registered;
+            } else {
+                registerBtn.style.display = 'none';
+            }
+            
+            document.getElementById('event-modal').classList.remove('hidden');
+        }
+
+        function closeEventModal() {
+            document.getElementById('event-modal').classList.add('hidden');
+            selectedEventId = null;
+        }
+
+        function registerForEvent() {
+            if (selectedEventId) {
+                const event = sampleEvents.find(e => e.id === selectedEventId);
+                if (event && !event.registered) {
+                    event.registered = true;
+                    showToast(`¡Inscrito exitosamente en ${event.title}!`, 'success');
+                    closeEventModal();
+                    loadEvents();
+                    
+                    // Actualizar estadísticas
+                    const eventsAttended = parseInt(document.getElementById('events-attended').textContent) + 1;
+                    document.getElementById('events-attended').textContent = eventsAttended;
+                }
+            }
+        }
+
+        function quickRegister(eventId) {
+            const event = sampleEvents.find(e => e.id === eventId);
+            if (event && !event.registered && event.status === 'upcoming') {
+                event.registered = true;
+                showToast(`¡Inscrito en ${event.title}!`, 'success');
+                loadEvents();
+                
+                // Actualizar estadísticas
+                const eventsAttended = parseInt(document.getElementById('events-attended').textContent) + 1;
+                document.getElementById('events-attended').textContent = eventsAttended;
+            }
+        }
+
+        // Funciones de educación
+        function playVideo(videoType) {
+            showToast(`Reproduciendo video: ${getVideoTitle(videoType)}`, 'info');
+        }
+
+        function getVideoTitle(type) {
+            const titles = {
+                'compostaje': 'Cómo hacer compostaje',
+                'reciclaje': 'Reciclaje efectivo',
+                'energia': 'Ahorro de energía'
+            };
+            return titles[type] || 'Video educativo';
+        }
+
+        function downloadResource(resourceType) {
+            showToast(`Descargando: ${getResourceTitle(resourceType)}`, 'info');
+        }
+
+        function getResourceTitle(type) {
+            const titles = {
+                'reciclaje-guide': 'Guía de Reciclaje Campus',
+                'agua-tips': 'Tips de Ahorro de Agua',
+                'compostaje-manual': 'Manual de Compostaje',
+                'plantas-guide': 'Guía de Plantas para Interiores'
+            };
+            return titles[type] || 'Recurso educativo';
+        }
+
+        // Funciones de mapa
+        function showMapInfo(type, title, description) {
+            const infoDiv = document.getElementById('map-info');
+            const titleEl = document.getElementById('map-info-title');
+            const descEl = document.getElementById('map-info-description');
+            const detailsEl = document.getElementById('map-info-details');
+            
+            titleEl.textContent = title;
+            descEl.textContent = description;
+            
+            // Agregar detalles específicos según el tipo
+            let details = '';
+            switch(type) {
+                case 'reciclaje':
+                    details = `
+                        <div class="flex items-center text-sm text-gray-600">
+                            <i class="fas fa-clock mr-2"></i>
+                            <span>Disponible 24/7</span>
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <i class="fas fa-recycle mr-2"></i>
+                            <span>Papel, plástico, vidrio, metal</span>
+                        </div>
+                    `;
+                    break;
+                case 'zona-verde':
+                    details = `
+                        <div class="flex items-center text-sm text-gray-600">
+                            <i class="fas fa-tree mr-2"></i>
+                            <span>15 especies de árboles nativos</span>
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <i class="fas fa-users mr-2"></i>
+                            <span>Espacio para 50 personas</span>
+                        </div>
+                    `;
+                    break;
+                case 'huerto':
+                    details = `
+                        <div class="flex items-center text-sm text-gray-600">
+                            <i class="fas fa-seedling mr-2"></i>
+                            <span>Cultivos de temporada</span>
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <i class="fas fa-calendar mr-2"></i>
+                            <span>Talleres los sábados 9:00 AM</span>
+                        </div>
+                    `;
+                    break;
+                case 'acopio':
+                    details = `
+                        <div class="flex items-center text-sm text-gray-600">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            <span>Solo materiales especiales</span>
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <i class="fas fa-clock mr-2"></i>
+                            <span>Lun-Vie 8:00-17:00</span>
+                        </div>
+                    `;
+                    break;
+                case 'taller':
+                    details = `
+                        <div class="flex items-center text-sm text-gray-600">
+                            <i class="fas fa-tools mr-2"></i>
+                            <span>Equipamiento completo</span>
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <i class="fas fa-calendar mr-2"></i>
+                            <span>Reservas en recepción</span>
+                        </div>
+                    `;
+                    break;
+            }
+            
+            detailsEl.innerHTML = details;
+            infoDiv.classList.remove('hidden');
+            infoDiv.classList.add('fade-in');
+        }
+
+        // Funciones de UI
+        function toggleUserMenu() {
+            const dropdown = document.getElementById('user-dropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        function toggleNotifications() {
+            const dropdown = document.getElementById('notifications-dropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            
+            if (isDarkMode) {
+                body.classList.add('dark');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                body.classList.remove('dark');
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500',
+                warning: 'bg-yellow-500'
+            };
+            
+            toast.className = `notification ${colors[type]} text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 max-w-sm`;
+            toast.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check' : type === 'error' ? 'fa-times' : 'fa-info'} mr-2"></i>
+                <span>${message}</span>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Remover después de 3 segundos
+            setTimeout(() => {
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        // Inicializar gráficas
+        function initializeCharts() {
+            // Gráfica de progreso mensual
+            const progressCtx = document.getElementById('progressChart').getContext('2d');
+            new Chart(progressCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Puntos Ganados',
+                        data: [120, 190, 300, 250, 420, 380],
+                        borderColor: '#22c55e',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Gráfica de tipos de acciones
+            const actionsCtx = document.getElementById('actionsChart').getContext('2d');
+            new Chart(actionsCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Reciclaje', 'Ahorro Energía', 'Transporte', 'Compostaje', 'Otros'],
+                    datasets: [{
+                        data: [30, 25, 20, 15, 10],
+                        backgroundColor: [
+                            '#22c55e',
+                            '#3b82f6',
+                            '#f59e0b',
+                            '#8b5cf6',
+                            '#ef4444'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9912a13590b64066',t:'MTc2MDkwMTU5NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
